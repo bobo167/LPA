@@ -1,0 +1,45 @@
+import { defHttp } from "/@/utils/http/axios";
+<% if(controller.ImportModels && controller.ImportModels.length>0){%>import { <% controller.ImportModels.forEach( (item,index) => {%><%= item+(index<controller.ImportModels.length-1?', ':'') %><% }) %> } from './model'<% } %>
+/**
+ * <%=controller.Description || '无' %>
+ */
+class <%=controller.Name%> {<% controller.Methods.forEach( m => {
+  // 方法参数-对象（排除请求头中参数）
+  let ps = m.Parameters;
+  
+  // 方法参数-输出（排除请求头中参数）
+  let pss = ps.map(p=>{
+    return p.CamelCaseName+(p.Required?'':'?')+': '+(p.Type.TsType)
+  }).join(', ');
+
+  // 参数说明-输出
+  let psd = ps.map(p=>{
+    return '* @param '+ p.CamelCaseName + ' - ' + p.Type.TsType  + ' - ' +  p.In + ' - ' + (p.Description || '无') + ' - '+ (p.Required?'必填':'可空')
+  }).join('\r\n   ');
+
+  // body\formData 参数
+  let pdt = [].concat(m.ParametersBody).concat(m.ParametersFormData);
+  let dt = pdt.length>0?pdt[0].CamelCaseName:null
+
+  // Query 参数
+  let qr = m.ParametersQuery.map(p=>{
+    return p.Name == p.CamelCaseName ? p.Name : (p.Name+': ' + p.CamelCaseName)
+  }).join(', ');
+
+  // Path 参数
+  let url = m.Url
+  m.ParametersPath.map(p=>{
+    url = url.replace('{'+p.CamelCaseName+'}',"' + "+p.CamelCaseName+" + '")
+  })
+%>
+  /**
+   * <%=m.Description || '无'%><%-psd?('\r\n   '+psd):''%>
+   */
+    public <%=m.Name %>(<%-pss%>): <%-'Promise<'+m.Responses.TsType+'>' %> {
+      return defHttp.<%=m.RequestName%><%-'<'+m.Responses.TsType+'>' %>({
+        url: '<%-url%>',<%-((dt?('\r\n        data: '+dt):'')+(qr?('\r\n        params: { '+qr+' }'):''))%>
+      })
+    }
+    <%})%>
+}
+export default new <%=controller.Name%>()

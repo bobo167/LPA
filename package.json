@@ -1,0 +1,26 @@
+{
+	"name": "swagger2api",
+	"version": "1.0.0",
+	"description": "生成swagger接口",
+	"main": "./src/index.ts",
+	"repository": "https://github.com/wxynf4/swagger2api.git",
+	"author": "wxynf4 <wxynf4@qq.com>",
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"getapi": "esno main.ts"
+	},
+	"devDependencies": {
+		"@types/lodash-es": "^4.17.6",
+		"@types/node": "^18.7.8",
+		"@types/ejs": "^3.1.1",
+		"ts-node": "^10.9.1",
+		"typescript": "^4.7.4",
+		"esno": "^0.16.3"
+	},
+	"dependencies": {
+		"axios": "^0.27.2",
+		"ejs": "^3.1.8",
+		"lodash-es": "^4.17.21"
+	}
+}
