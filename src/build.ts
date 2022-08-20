@@ -17,6 +17,7 @@ import type {
 	Type,
 } from './types';
 import https from 'https';
+import inquirer from 'inquirer';
 
 /**
  * 获取Swagger的JSON数据
@@ -53,7 +54,6 @@ function removeDirSync(path: string) {
 	 * 判断给定的路径是否存在
 	 */
 	if (fs.existsSync(path)) {
-		console.log('删除旧文件');
 		/**
 		 * 返回文件和子目录的数组
 		 */
@@ -75,7 +75,7 @@ function removeDirSync(path: string) {
 		 */
 		fs.rmdirSync(path);
 	} else {
-		console.log('不存在旧文件');
+		console.log(`路径[${path}]不存在`);
 	}
 }
 
@@ -498,13 +498,17 @@ function getApiData(swaggerUrl: string, options: NswagOptions): Promise<ApiData>
  * @param apiData 标准化数据
  * @param options 生成配置
  */
-function codeBuild(apiData: ApiData, options: NswagOptions) {
+async function codeBuild(apiData: ApiData, options: NswagOptions) {
 	const __filename = fileURLToPath(import.meta.url);
 	const __dirname = _path.dirname(__filename);
 
-	const savePath = options.OutPath || _path.join(__dirname, './apiCenter');
+	if (!options.OutPath) {
+		console.log("请设置绝对路径输出目录")
+		process.exit(0);
+	}
+	const savePath = options.OutPath;
 	const saveBasePath = _path.join(savePath, 'base');
-	const saveMethodDir = savePath;
+	const saveMethodDir = _path.join(savePath, 'api');
 	const saveModelsDir = _path.join(savePath, 'model');
 
 	const tplPath = options.TplPath || _path.join(__dirname, './tpl');
@@ -512,12 +516,32 @@ function codeBuild(apiData: ApiData, options: NswagOptions) {
 	const tplModelsPath = _path.join(tplPath, 'model.ejs');
 	const tplBasePath = _path.join(tplPath, 'base.ejs');
 
-	// 清理旧代码
-	removeDirSync(savePath);
+	if (fs.existsSync(saveBasePath)) {
+		const { ok } = await inquirer.prompt([
+			{
+				name: 'ok',
+				type: 'confirm',
+				default: false,
+				message: `基类已存在，是否重新生成？`
+			}
+		])
+		if (ok) {
+			console.log('清理所有旧文件');
+			removeDirSync(savePath);
 
-	console.log('生成基类');
-	// 生成-基类
-	codeRender(tplBasePath, { options }, saveBasePath, "useAxios.ts");
+			console.log('生成基类');
+			codeRender(tplBasePath, { options }, saveBasePath, "useAxios.ts");
+		} else {
+			console.log('清理接口文件');
+			removeDirSync(saveMethodDir);
+			console.log('清理模型文件');
+			removeDirSync(saveModelsDir);
+		}
+	} else {
+		console.log('生成基类');
+		// 生成-基类
+		codeRender(tplBasePath, { options }, saveBasePath, "useAxios.ts");
+	}
 	console.log('生成dto对象');
 	// 生成-dto对象
 	codeRender(tplModelsPath, { apiData, options }, saveModelsDir, 'index.ts');
@@ -527,7 +551,7 @@ function codeBuild(apiData: ApiData, options: NswagOptions) {
 		// 生成-接口
 		codeRender(tplMethodPath, { controller, options }, saveMethodDir, controller.Name + '.ts');
 	});
-	console.log('生成接口成功' + saveMethodDir);
+	console.log('\n接口生成成功' + saveMethodDir);
 }
 
 /**
@@ -537,5 +561,5 @@ function codeBuild(apiData: ApiData, options: NswagOptions) {
  */
 export default async function build(options: NswagOptions) {
 	const apiData = await getApiData(options.SwaggerUrl, options);
-	codeBuild(apiData, options);
+	await codeBuild(apiData, options);
 }
