@@ -4,6 +4,7 @@ export interface NswagOptions {
 	ApiBase: string; // 接口根节点（必填）
 	OutPath: string; // 输出目录（默认：项目根/src/api/）
 	TplPath: string; // 模板路径（默认：初始化后会自动copy模板文件夹到项目根目录：nswag，如果进行了修改则需配置此目录）
+	UseAxios: boolean,
 	FormatControllerName: Function; // 格式化模块名称（默认：接口名称+Api）
 	FormatMethodName: Function; // 格式化接口名称（默认：小驼峰命名）
 	FormatModelName: Function; // 格式化dto对象、枚举名称（默认：只会去除特殊字符）

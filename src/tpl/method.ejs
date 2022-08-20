@@ -1,4 +1,9 @@
-import { defHttp } from "/@/utils/http/axios";
+<% if (options.UseAxios) {%>
+import axios from "axios";
+<%} else {%>
+import { apiClient } from "./base/useAxios";
+<%}%>
+
 <% if(controller.ImportModels && controller.ImportModels.length>0){%>import { <% controller.ImportModels.forEach( (item,index) => {%><%= item+(index<controller.ImportModels.length-1?', ':'') %><% }) %> } from './model'<% } %>
 /**
  * <%=controller.Description || '无' %>
@@ -23,7 +28,7 @@ class <%=controller.Name%> {<% controller.Methods.forEach( m => {
 
   // Query 参数
   let qr = m.ParametersQuery.map(p=>{
-    return p.Name == p.CamelCaseName ? p.Name : (p.Name+': ' + p.CamelCaseName)
+    return p.Name === p.CamelCaseName ? p.Name : (p.Name+': ' + p.CamelCaseName)
   }).join(', ');
 
   // Path 参数
@@ -36,8 +41,8 @@ class <%=controller.Name%> {<% controller.Methods.forEach( m => {
    * <%=m.Description || '无'%><%-psd?('\r\n   '+psd):''%>
    */
     public <%=m.Name %>(<%-pss%>): <%-'Promise<'+m.Responses.TsType+'>' %> {
-      return defHttp.<%=m.RequestName%><%-'<'+m.Responses.TsType+'>' %>({
-        url: '<%-url%>',<%-((dt?('\r\n        data: '+dt):'')+(qr?('\r\n        params: { '+qr+' }'):''))%>
+      return <%-options.UseAxios ? 'axios': 'apiClient'%>.<%=m.RequestName%>('<%-url%>', {
+        <%-((dt?('  data: '+dt):'')+(qr?('\r\n        params: { '+qr+' }'):''))%>
       })
     }
     <%})%>

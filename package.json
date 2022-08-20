@@ -1,6 +1,6 @@
 {
 	"name": "swaggergenerateapi",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "生成swagger接口",
 	"main": "./src/index.ts",
 	"repository": "https://github.com/wxynf4/swaggergenerateapi.git",
@@ -8,7 +8,8 @@
 	"type": "module",
 	"license": "MIT",
 	"scripts": {
-		"getapi": "esno main.ts"
+		"getapi": "esno main.ts",
+		"testapi": "esno testApi.ts"
 	},
 	"devDependencies": {
 		"@types/lodash-es": "^4.17.6",

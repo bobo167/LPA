@@ -53,6 +53,7 @@ function removeDirSync(path: string) {
 	 * 判断给定的路径是否存在
 	 */
 	if (fs.existsSync(path)) {
+		console.log('删除旧文件');
 		/**
 		 * 返回文件和子目录的数组
 		 */
@@ -380,6 +381,7 @@ function formatData(swagger: any, options: NswagOptions) {
 				ParametersHeader: [],
 				ParametersPath: [],
 				Responses: convertType(
+					//todo: swagger写注解@ApiResponse({status: 200})才会有这个属性，要不然是default
 					md.responses['200']
 						? isOpenApi
 							? md.responses['200'].content
@@ -501,18 +503,21 @@ function codeBuild(apiData: ApiData, options: NswagOptions) {
 	const __dirname = _path.dirname(__filename);
 
 	const savePath = options.OutPath || _path.join(__dirname, './apiCenter');
+	const saveBasePath = _path.join(savePath, 'base');
 	const saveMethodDir = savePath;
 	const saveModelsDir = _path.join(savePath, 'model');
 
 	const tplPath = options.TplPath || _path.join(__dirname, './tpl');
 	const tplMethodPath = _path.join(tplPath, 'method.ejs');
 	const tplModelsPath = _path.join(tplPath, 'model.ejs');
+	const tplBasePath = _path.join(tplPath, 'base.ejs');
 
 	// 清理旧代码
-	console.log('删除旧文件');
 	removeDirSync(savePath);
+
+	console.log('生成基类');
 	// 生成-基类
-	//codeRender(tplBasePath, { apiData, options }, saveBaseDir, "index.ts");
+	codeRender(tplBasePath, { options }, saveBasePath, "useAxios.ts");
 	console.log('生成dto对象');
 	// 生成-dto对象
 	codeRender(tplModelsPath, { apiData, options }, saveModelsDir, 'index.ts');

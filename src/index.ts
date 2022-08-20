@@ -38,6 +38,7 @@ function defNswagOptions(options: NswagOptions) {
 		ApiBase: '',
 		OutPath: '',
 		TplPath: '',
+		UseAxios: false,
 		FormatControllerName: formatControllerName,
 		FormatMethodName: formatMethodName,
 		FormatModelName: formatModelName,

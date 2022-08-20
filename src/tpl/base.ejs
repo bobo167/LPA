@@ -1,121 +1,30 @@
-/**
- * 接口基类 options apiData
- */
-import axios, { AxiosStatic, AxiosRequestConfig } from 'axios'
-import store from '@/store'
-import qs from 'qs'
-import { MessageBox, Message } from 'element-ui'
-import router from '@/router'
+import axios, { AxiosRequestConfig } from 'axios';
 
-// 请求队列
-const pending: Map<string, any> = new Map()
+function useAxios(config: AxiosRequestConfig) {
+  const instance = axios.create(Object.assign({}, config))
 
-export default class Base {
-  private axios: AxiosStatic
-  private baseURL?: string
+  instance.interceptors.request.use(config => {
+    return config;
+  }, error => {
+    return Promise.reject(error);
+  })
 
-  constructor() {
-    this.baseURL = '<%= options.ApiBase %>'
-    // 请求
-    axios.interceptors.request.use(
-      config => {
-        if (store.getters.auth && store.getters.auth.token) {
-          config.headers.auth = store.getters.auth.token
-        }
-        this.addPending(config) // 将当前请求添加到 pending 中
-        return config
-      },
-      error => {
-        Promise.reject(error)
-      }
-    )
-
-    // 响应
-    axios.interceptors.response.use(
-      response => {
-        this.removePending(response.config) // 在请求结束后，移除本次请求
-        return response
-      },
-      error => {
-        if (error.response && error.response.status) {
-          switch (error.response.status) {
-            case 403:
-              store.dispatch('LogOut').then(() => {
-                window.location.reload()
-              })
-              break
-            default:
-              Message({
-                message: error.response.data.Message || '系统繁忙请稍后再试',
-                type: 'error',
-                duration: 5 * 1000
-              })
-              break
-          }
-        } else {
-          error.message = error.message === 'Network Error' ? '网络异常，请稍后再试' : '系统繁忙或请求被取消'
-        }
-        return Promise.reject(error)
-      }
-    )
-
-    this.axios = axios
-  }
-  // 添加 pending 队列
-  private addPending(config: any) {
-    const url = [config.method, config.url, qs.stringify(config.params), qs.stringify(config.data)].join('&')
-    config.cancelToken =
-      config.cancelToken ||
-      new axios.CancelToken(cancel => {
-        if (!pending.has(url)) {
-          pending.set(url, cancel)
-        }
-      })
-  }
-  // 移除 pending 队列
-  private removePending(config: any) {
-    const url = [config.method, config.url, qs.stringify(config.params), qs.stringify(config.data)].join('&')
-    if (pending.has(url)) {
-      const cancel = pending.get(url)
-      cancel(url)
-      pending.delete(url)
+  instance.interceptors.response.use(response => {
+    if (response.status === 200) {
+      return response.data;
     }
-  }
-  // 清空 pending 中的请求
-  public clearPending() {
-    for (const [url, cancel] of pending) {
-      cancel(url)
-    }
-    pending.clear()
-  }
+    return Promise.reject(response);
+  }, error => {
+    return Promise.reject(error);
+  })
 
-  // 发起请求
-  public async request(config: AxiosRequestConfig) {
-    config.baseURL = this.baseURL
-    const r = await this.axios(config)
-    return r.data
-  }
-  // 下载\导出
-  public download(config: AxiosRequestConfig) {
-    const form = document.createElement('form')
-    form.style.display = 'none'
-    form.action = (this.baseURL || '') + config.url
-    form.method = 'post'
-    document.body.appendChild(form)
+  return instance
+}
 
-    const input1 = document.createElement('input')
-    input1.type = 'hidden'
-    input1.name = 'query'
-    input1.value = JSON.stringify(config.data)
-    form.appendChild(input1)
+const apiClient = useAxios({
+  baseURL: '<%= options.ApiBase %>'
+});
 
-    const input2 = document.createElement('input')
-    input2.type = 'hidden'
-    input2.name = 'auth'
-    input2.value = store.getters.auth && store.getters.auth.token ? store.getters.auth.token : ''
-    form.appendChild(input2)
-
-    form.submit()
-    form.remove()
-  }
+export {
+  apiClient,
 }
