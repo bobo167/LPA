@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-$ pnpm i -D swagger2api esno
+$ pnpm i -D swaggergenerateapi esno
 ```
 
 ## 创建文件 generateApi.ts
