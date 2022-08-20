@@ -415,7 +415,7 @@ function formatData(swagger: any, options: NswagOptions) {
 					CamelCaseName: reName(getParameterName(parameter.name), method.Parameters),
 					Description: removeLineBreak(parameter.description),
 					In: parameter.in,
-					Required: parameter.required,
+					Required: parameter.required || false,
 					Default: '',
 					Type: convertType(parameter, options),
 				};
