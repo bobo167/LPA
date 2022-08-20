@@ -1,6 +1,6 @@
 {
 	"name": "swaggergenerateapi",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "生成swagger接口",
 	"main": "./src/index.ts",
 	"repository": "https://github.com/wxynf4/swaggergenerateapi.git",

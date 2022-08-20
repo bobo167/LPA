@@ -142,7 +142,7 @@ function getParameterName(oldName: string) {
 	if (oldName === 'string') {
 		newName = 'str';
 	}
-	newName = camelCase(oldName);
+	newName = camelCase(newName).replace(/\./g, '_');
 	return newName;
 }
 
