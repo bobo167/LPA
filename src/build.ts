@@ -3,7 +3,7 @@ import fs from 'fs';
 import _path from 'path';
 import { fileURLToPath } from 'url';
 import ejs from 'ejs';
-import { find, camelCase, findIndex, forEach, zipObject, mapKeys, orderBy, remove } from 'lodash-es';
+import { camelCase, find, findIndex, forEach, mapKeys, orderBy, remove, zipObject } from 'lodash-es';
 import type {
 	ApiController,
 	ApiData,
@@ -355,13 +355,12 @@ function formatData(swagger: any, options: NswagOptions) {
 			let currController = find(apiData.Controllers, { Name: cName });
 			if (!currController) {
 				// 没有就新加一个模块
-				const newController: ApiController = {
+				currController = {
 					Name: cName,
 					Description: '后台太懒没写注释',
 					Methods: [],
 					ImportModels: [],
 				};
-				currController = newController;
 				apiData.Controllers.push(currController);
 			}
 			// 方法名称
@@ -500,11 +499,12 @@ function getApiData(swaggerUrl: string, options: NswagOptions): Promise<ApiData>
 function codeBuild(apiData: ApiData, options: NswagOptions) {
 	const __filename = fileURLToPath(import.meta.url);
 	const __dirname = _path.dirname(__filename);
-	const savePath = _path.join(__dirname, options.OutPath);
+
+	const savePath = options.OutPath || _path.join(__dirname, './apiCenter');
 	const saveMethodDir = savePath;
 	const saveModelsDir = _path.join(savePath, 'model');
 
-	const tplPath = _path.join(__dirname, options.TplPath);
+	const tplPath = options.TplPath || _path.join(__dirname, './tpl');
 	const tplMethodPath = _path.join(tplPath, 'method.ejs');
 	const tplModelsPath = _path.join(tplPath, 'model.ejs');
 
