@@ -1,10 +1,10 @@
 <% if (options.UseAxios) {%>
 import axios from "axios";
 <%} else {%>
-import { apiClient } from "./base/useAxios";
+import { apiClient } from "../base/useAxios";
 <%}%>
 
-<% if(controller.ImportModels && controller.ImportModels.length>0){%>import { <% controller.ImportModels.forEach( (item,index) => {%><%= item+(index<controller.ImportModels.length-1?', ':'') %><% }) %> } from './model'<% } %>
+<% if(controller.ImportModels && controller.ImportModels.length>0){%>import { <% controller.ImportModels.forEach( (item,index) => {%><%= item+(index<controller.ImportModels.length-1?', ':'') %><% }) %> } from '../model'<% } %>
 /**
  * <%=controller.Description || '无' %>
  */

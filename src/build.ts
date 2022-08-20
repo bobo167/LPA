@@ -545,9 +545,10 @@ async function codeBuild(apiData: ApiData, options: NswagOptions) {
 	console.log('生成dto对象');
 	// 生成-dto对象
 	codeRender(tplModelsPath, { apiData, options }, saveModelsDir, 'index.ts');
-	console.log('生成接口');
+
 	// 按模块生成接口
 	apiData.Controllers.forEach((controller: any) => {
+		console.log(`生成${controller.Name}`);
 		// 生成-接口
 		codeRender(tplMethodPath, { controller, options }, saveMethodDir, controller.Name + '.ts');
 	});
@@ -556,7 +557,6 @@ async function codeBuild(apiData: ApiData, options: NswagOptions) {
 
 /**
  * 生成
- * @param apiData 标准化数据
  * @param options 生成配置
  */
 export default async function build(options: NswagOptions) {
