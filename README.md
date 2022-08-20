@@ -1,4 +1,4 @@
-# swagger2api
+# swaggergenerateapi
 
 ## Installation
 
@@ -23,5 +23,5 @@ import * as path from 'path';
 ## 执行
 
 ```bash
-npx esno generateApi.ts
+$ npx esno generateApi.ts
 ```
