@@ -28,7 +28,11 @@ class <%=controller.Name%> {<% controller.Methods.forEach( m => {
 
   // Query 参数
   let qr = m.ParametersQuery.map(p=>{
-    return p.Name === p.CamelCaseName ? p.Name : (p.Name+': ' + p.CamelCaseName)
+      if (p.Name === p.CamelCaseName) {
+          return p.Name;
+      } else {
+          return ([`'${p.Name}'`]+': ' + p.CamelCaseName)
+      }
   }).join(', ');
 
   // Path 参数
@@ -37,14 +41,17 @@ class <%=controller.Name%> {<% controller.Methods.forEach( m => {
     url = url.replace('{'+p.CamelCaseName+'}',"' + "+p.CamelCaseName+" + '")
   })
 %>
-  /**
-   * <%=m.Description || '无'%><%-psd?('\r\n   '+psd):''%>
-   */
+    /**
+     * <%=m.Description || '无'%><%-psd?('\r\n   '+psd):''%>
+     */
     public <%=m.Name %>(<%-pss%>): <%-'Promise<'+m.Responses.TsType+'>' %> {
-      return <%-options.UseAxios ? 'axios': 'apiClient'%>.<%=m.RequestName%>('<%-url%>', {
-        <%-((dt?('  data: '+dt):'')+(qr?('\r\n        params: { '+qr+' }'):''))%>
+      return <%-options.UseAxios ? 'axios': 'apiClient'%>.request({
+        url: '<%-url%>',
+        method: '<%-m.RequestName%>',
+        <%-(dt?('data: '+dt+','):'')%>
+        <%-(qr?('params: { '+qr+' },'):'')%>
       })
     }
-    <%})%>
+<%})%>
 }
 export default new <%=controller.Name%>()

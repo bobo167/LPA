@@ -4,12 +4,8 @@ export interface <%= m.Name + (m.BaseModel?' extends '+m.BaseModel:'') %> {<% m.
   <%= p.Name %><%= p.Nullable? '?' : '' %> : <%- p.Type.TsType %><%=m.IsParameter?' | undefined':''%>
 <% }) %>}
 <% }) %>
-<% apiData.Enums.forEach( m => { %>// <%= m.Description || '无' %><%
-  let items = m.Items.map(p=>{
-    return '  '+p.Name +' = '+ p.Value
-  }).join(',\n');
-%>
-export enum <%= m.Name %> { 
-<%= items %> 
+<% apiData.Enums.forEach( m => { %>// <%= m.Description || '无' %>
+export enum <%= m.Name %> {<% m.Items.forEach(p => { %>
+  <%- p.Name %> = '<%- p.Value %>',<%}) %>
 }
 <% }) %>

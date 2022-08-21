@@ -288,51 +288,53 @@ function formatData(swagger: any, options: NswagOptions) {
 
 	// dto对象 / enum对象
 	forEach(isOpenApi ? swagger.components.schemas : swagger.definitions, function (definition, name) {
-		if (definition.hasOwnProperty('enum')) {
-			const e: Enum = {
-				Name: options.FormatModelName(name),
-				Description: removeLineBreak(definition.description),
-				Items: [],
-			};
-			const enums = zipObject(definition['x-enumNames'], definition.enum);
-			forEach(enums, function (enumValue, enumName) {
-				const item: EnumItem = {
-					Name: enumName,
-					Value: Number(enumValue),
+		// 排除 #/definitions/***
+		if (!name.startsWith('#')) {
+			if (definition.hasOwnProperty('enum')) {
+				const e: Enum = {
+					Name: options.FormatModelName(name),
+					Description: removeLineBreak(definition.description),
+					Items: [],
 				};
-				e.Items.push(item);
-			});
-
-			apiData.Enums.push(e);
-		} else {
-			const m: Model = {
-				Name: options.FormatModelName(name),
-				Description: removeLineBreak(definition.description),
-				IsParameter: false,
-				BaseModel: '',
-				Properties: [],
-			};
-
-			// 格式化属性
-			if (definition.hasOwnProperty('allOf')) {
-				forEach(definition.allOf, function (propertie) {
-					if (propertie.hasOwnProperty('$ref')) {
-						m.BaseModel = options.FormatModelName(
-							propertie.$ref.substring(propertie.$ref.lastIndexOf('/') + 1)
-						);
-					} else {
-						if (propertie.hasOwnProperty('properties')) {
-							fmProperties(propertie.properties, m);
-						}
-					}
+				const enums = zipObject(definition['x-enumNames'], definition.enum);
+				forEach(enums, function (enumValue: any, enumName) {
+					const item: EnumItem = {
+						Name: enumName,
+						Value: enumValue,
+					};
+					e.Items.push(item);
 				});
-			} else if (definition.hasOwnProperty('required')) {
-				fmProperties(definition.properties, m, definition.required);
-			} else {
-				fmProperties(definition.properties, m);
-			}
 
-			apiData.Models.push(m);
+				apiData.Enums.push(e);
+			} else {
+				const m: Model = {
+					Name: options.FormatModelName(name),
+					Description: removeLineBreak(definition.description),
+					IsParameter: false,
+					BaseModel: '',
+					Properties: [],
+				};
+
+				// 格式化属性
+				if (definition.hasOwnProperty('allOf')) {
+					forEach(definition.allOf, function (propertie) {
+						if (propertie.hasOwnProperty('$ref')) {
+							m.BaseModel = options.FormatModelName(
+								propertie.$ref.substring(propertie.$ref.lastIndexOf('/') + 1)
+							);
+						} else {
+							if (propertie.hasOwnProperty('properties')) {
+								fmProperties(propertie.properties, m);
+							}
+						}
+					});
+				} else if (definition.hasOwnProperty('required')) {
+					fmProperties(definition.properties, m, definition.required);
+				} else {
+					fmProperties(definition.properties, m);
+				}
+				apiData.Models.push(m);
+			}
 		}
 	});
 
@@ -482,8 +484,10 @@ function formatData(swagger: any, options: NswagOptions) {
  */
 function getApiData(swaggerUrl: string, options: NswagOptions): Promise<ApiData> {
 	return new Promise((resolve, reject) => {
+		console.log(`开始获取swagger数据`)
 		getSwaggerData(swaggerUrl)
 			.then((r: any) => {
+				console.log(`开始格式化swagger数据`)
 				const apiData = formatData(r, options);
 				resolve(apiData);
 			})
@@ -546,13 +550,13 @@ async function codeBuild(apiData: ApiData, options: NswagOptions) {
 	// 生成-dto对象
 	codeRender(tplModelsPath, { apiData, options }, saveModelsDir, 'index.ts');
 
+	console.log(`生成服务`);
 	// 按模块生成接口
 	apiData.Controllers.forEach((controller: any) => {
-		console.log(`生成${controller.Name}`);
 		// 生成-接口
 		codeRender(tplMethodPath, { controller, options }, saveMethodDir, controller.Name + '.ts');
 	});
-	console.log('\n接口生成成功' + saveMethodDir);
+	console.log(`\n${apiData.Controllers.length}个服务已生成 ${saveMethodDir}`);
 }
 
 /**

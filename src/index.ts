@@ -62,8 +62,10 @@ export default async function init(configs: NswagOptions [] = []) {
 			console.log('接口根目录[ApiBase]不能为空');
 			return;
 		}
-		console.log(`正在生成接口 ${new Date().toLocaleString()}`);
+		console.log(`开始生成 ${new Date().toLocaleString()}`);
+		console.time('Generation time');
 		await build(defNswagOptions(config));
+		console.timeEnd('Generation time');
 		i++;
 	}
 	process.exit(0);

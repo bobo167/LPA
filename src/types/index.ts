@@ -60,7 +60,7 @@ export interface Enum {
 }
 export interface EnumItem {
 	Name: string; // 名称
-	Value: Number; // 值
+	Value: string; // 值
 }
 
 // 类型
