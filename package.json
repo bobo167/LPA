@@ -11,6 +11,9 @@
 		"getapi": "esno main.ts",
 		"testapi": "esno testApi.ts"
 	},
+	"publishConfig": {
+		"registry": "https://github.com/wxynf4/swaggergenerateapi"
+	},
 	"devDependencies": {
 		"@types/ejs": "^3.1.1",
 		"@types/inquirer": "^9.0.1",
