@@ -14,6 +14,7 @@
 	"publishConfig": {
 		"registry": "https://github.com/wxynf4/swaggergenerateapi"
 	},
+	"packageManager": "pnpm@7.9.0",
 	"devDependencies": {
 		"@types/ejs": "^3.1.1",
 		"@types/inquirer": "^9.0.1",
