@@ -1,18 +1,27 @@
 {
 	"name": "swaggergenerateapi",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "生成swagger接口",
 	"main": "./src/index.ts",
-	"repository": "https://gitee.com/wxynf4/swaggergenerateapi.git",
+	"repository": "https://github.com/wxynf4/swaggergenerateapi.git",
 	"author": "wxynf4 <wxynf4@qq.com>",
 	"type": "module",
 	"license": "MIT",
+	"keywords": [
+		"swagger",
+		"tools",
+		"api",
+		"swagger-api",
+		"generate",
+		"automatic generation",
+		"generating tool"
+	],
 	"scripts": {
 		"getapi": "esno main.ts",
 		"testapi": "esno testApi.ts"
 	},
 	"publishConfig": {
-		"registry": "https://gitee.com/wxynf4/swaggergenerateapi"
+		"registry": "https://github.com/wxynf4/swaggergenerateapi"
 	},
 	"packageManager": "pnpm@7.9.0",
 	"devDependencies": {
