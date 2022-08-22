@@ -8,8 +8,8 @@ $ pnpm i -D swaggergenerateapi esno
 
 ## 创建文件 generateApi.ts
 ```bash
-import init from './src/index';
-import { NswagOptions } from './src/types';
+import init from 'swaggergenerateapi';
+import { NswagOptions } from 'swaggergenerateapi/src/types';
 import * as path from 'path';
 (async () => {
   await init([{
